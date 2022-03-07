@@ -59,6 +59,7 @@ void mem_init(){
 
 }
 
+
 // Set key value pair
 void mem_set_value(char *var_in, char *value_in) {
 	
@@ -149,7 +150,8 @@ void mem_set_script(char *var_in, char *value_in) {
 			break;
 		} 
 	}
-
 	// head = head->next;
+	//free memory
+	
 
 }
