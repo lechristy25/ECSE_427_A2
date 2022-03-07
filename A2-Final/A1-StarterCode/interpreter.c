@@ -17,6 +17,9 @@ int run(char* script);
 int badcommandFileDoesNotExist();
 int my_ls();
 int echo(char* var); 
+int exec(char* command_args[], int args_size);
+int badcommandIdenticalFiles();
+int badcommandWrongPolicy();
 
 // Interpret commands and their arguments
 int interpreter(char* command_args[], int args_size){
@@ -63,6 +66,16 @@ int interpreter(char* command_args[], int args_size){
 		if (args_size != 1) return badcommand();
 		return my_ls();
 
+	}else if (strcmp(command_args[0], "exec")==0) {
+		if (args_size > 5) return badcommand();
+		if (args_size < 3) return badcommand();
+		printf("%d\n", args_size);
+		printf("%s\n", command_args[args_size-1]);
+		if(strcmp(command_args[args_size-1],"FCFS") != 0 && strcmp(command_args[args_size-1],"SJF") != 0 && strcmp(command_args[args_size-1],"RR") != 0 && strcmp(command_args[args_size-1],"AGING") != 0){
+			return badcommandWrongPolicy();
+		}
+		return exec(command_args, args_size);
+
 	}else return badcommand();
 }
 
@@ -98,6 +111,15 @@ int badcommandTooManyTokens(){
 int badcommandFileDoesNotExist(){
 	printf("%s\n", "Bad command: File not found");
 	return 3;
+}
+// For exec command only
+int badcommandIdenticalFiles(){
+	printf("%s\n", "Bad command: Files provided are identical");
+	return 4;
+}
+int badcommandWrongPolicy(){
+	printf("%s\n", "Bad command: Wrong Policy");
+	return 5;
 }
 
 int set(char* command_args[], int args_size){
@@ -185,4 +207,61 @@ int run(char* script){
 int my_ls(){
 	system("ls | tr ' ' '\n'");
 	return 0;
+}
+
+int exec(char* command_args[], int args_size){
+	//####################################
+	// need to handle single argument - DONE
+	// need to handle identical files - DONE
+	// need to handle a single memory placement for all files - IN SHELL
+	// need to handle lack of space for one file = throw error + terminate - TODO
+	//####################################
+
+	if(args_size == 3){
+		run(command_args[1]);
+	} 
+	if(args_size == 4){
+		if(strcmp(command_args[1], command_args[2]) == 0){
+			return badcommandIdenticalFiles();
+		}
+	}
+	if(args_size == 5){
+		if(strcmp(command_args[1], command_args[2]) == 0 || strcmp(command_args[2], command_args[3]) == 0 || strcmp(command_args[1], command_args[3]) == 0){
+			return badcommandIdenticalFiles();
+		}
+	}
+	//FCFS
+	int errCode = 0;
+	int cumSize = 0;
+	for (int i=1; i<args_size-1; i++){
+		printf("scripts : %s\n", command_args[i]);
+		char* scriptname = command_args[i];
+		FILE *p = fopen(command_args[i],"rt");  // the program is in a file
+		//printf("%s\n", &p);
+		if(p == NULL){
+			return badcommandFileDoesNotExist();
+		}
+		char c; 
+		int lineCount = 0; 
+		for(c = getc(p); c != EOF; c = getc(p)){
+			if (c == '\n'){
+				lineCount = lineCount + 1; 
+			}
+		}
+		rewind(p);
+
+
+		char *lines[lineCount]; 
+		char line[1000]; 
+		int i = 0;
+		while(fgets(line, 999, p)){
+			lines[i] = strdup(line); 
+			i++; 
+		}
+		mem_set_script(scriptname, lines, lineCount); 
+	}
+	fcfs_exec();
+	return errCode;
+	
+
 }

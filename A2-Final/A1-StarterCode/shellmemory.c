@@ -3,6 +3,8 @@
 #include<stdio.h>
 #include<stdbool.h>
 
+#include "shell.h"
+
 
 struct memory_struct{
 	char *var;
@@ -103,7 +105,7 @@ char *mem_get_value(char *var_in) {
 
 // specific mem set for a script
 void mem_set_script(char *var_in, char *value_in[], int lineCount) {
-	
+	printf("setting script");
 	int i;
 	int j;
 	//Value does not exist, need to find a free spot.
@@ -129,11 +131,15 @@ void mem_set_script(char *var_in, char *value_in[], int lineCount) {
 				newPcb->next = NULL; 
 				newPcb->start = i; 
 				newPcb->end = i + lineCount - 1;
-
 				if(head == NULL){
 					head = newPcb; 
 				}else{
-					head->next = newPcb; 
+					struct pcb* tmp = head; 
+					while(tmp->next != NULL){
+						struct pcb* nextTmp = tmp->next; 
+						tmp = nextTmp; 
+					}
+					tmp->next = newPcb;
 				}
 				break; 
 			}
@@ -146,7 +152,7 @@ void mem_set_script(char *var_in, char *value_in[], int lineCount) {
 }
 
 void fcfs_run(){
-	if(head != NULL){
+	while(head != NULL){
 		int i; 
 		int startingLine = head->start; 
 		int endingLine = head->end; 
@@ -161,7 +167,28 @@ void fcfs_run(){
 
 		struct pcb* tmp = head->next; 
 		head = tmp; 
-	}else{
-		printf("head is null rn");
 	}
+	printf("head is null rn");
+}
+
+void fcfs_exec(){
+	printf("in exec");
+	while(head != NULL){
+		int i; 
+		int startingLine = head->start; 
+		int endingLine = head->end; 
+		for(i=startingLine; i <= endingLine; i++){
+			//printf("key: %s, value: %s: index: %d\n", shellmemory[i].var, shellmemory[i].value, i);
+			parseInput(shellmemory[i].value);
+		}
+
+		for(i=startingLine; i <= endingLine; i++){
+			shellmemory[i].var = "none"; 
+			shellmemory[i].value = "none"; 
+		}
+
+		struct pcb* tmp = head->next; 
+		head = tmp; 
+	}
+	printf("head is null rn");
 }
