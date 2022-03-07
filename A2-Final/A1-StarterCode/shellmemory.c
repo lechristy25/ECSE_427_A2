@@ -62,6 +62,7 @@ void mem_init(){
 
 }
 
+
 // Set key value pair
 void mem_set_value(char *var_in, char *value_in) {
 	
@@ -156,8 +157,18 @@ void fcfs_run(){
 
 		for(i=startingLine; i <= endingLine; i++){
 			shellmemory[i].var = "none"; 
+<<<<<<< HEAD
 			shellmemory[i].value = "none"; 
 		}
+=======
+			shellmemory[i].value = "none";
+			break;
+		} 
+	}
+	// head = head->next;
+	//free memory
+	
+>>>>>>> changes
 
 		struct pcb* tmp = head->next; 
 		head = tmp; 

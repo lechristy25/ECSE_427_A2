@@ -17,6 +17,8 @@ int run(char* script);
 int badcommandFileDoesNotExist();
 int my_ls();
 int echo(char* var); 
+int exec(char* command_args[], int args_size);
+int badcommandIdenticalFiles();
 
 // Interpret commands and their arguments
 int interpreter(char* command_args[], int args_size){
@@ -63,6 +65,14 @@ int interpreter(char* command_args[], int args_size){
 		if (args_size != 1) return badcommand();
 		return my_ls();
 
+	}else if (strcmp(command_args[0], "exec")==0) {
+		if (args_size > 5) return badcommand();
+		if (args_size < 3) return badcommand();
+		if(command_args[args_size-1] != "FCFS" || command_args[args_size-1] != "SJF" || command_args[args_size-1] != "RR" || command_args[args_size-1] != "AGING"){
+			return badcommand();
+		}
+		return exec(command_args, args_size);
+
 	}else return badcommand();
 }
 
@@ -98,6 +108,11 @@ int badcommandTooManyTokens(){
 int badcommandFileDoesNotExist(){
 	printf("%s\n", "Bad command: File not found");
 	return 3;
+}
+// For exec command only
+int badcommandIdenticalFiles(){
+	printf("%s\n", "Bad command: Files provided are identical");
+	return 4;
 }
 
 int set(char* command_args[], int args_size){
@@ -185,4 +200,47 @@ int run(char* script){
 int my_ls(){
 	system("ls | tr ' ' '\n'");
 	return 0;
+}
+
+int exec(char* command_args[], int args_size){
+	if(args_size == 3) run(command_args[1]);
+	if(args_size == 4){
+		if(strcmp(command_args[1], command_args[2]) == 0){
+			return badcommandIdenticalFiles();
+		}
+	}
+	if(args_size == 5){
+		if(strcmp(command_args[1], command_args[2]) == 0 || strcmp(command_args[2], command_args[3]) == 0 || strcmp(command_args[1], command_args[3]) == 0){
+			return badcommandIdenticalFiles();
+		}
+	}
+	//FCFS
+	int errCode = 0;
+	//####################################
+	// need to handle single argument - DONE
+	// need to handle identical files - DONE
+	// need to handle a single memory placement for all files - IN SHELL
+	// need to handle lack of space for one file = throw error + terminate - TODO
+	//####################################
+	int cumSize = 0;
+	for (int i=1; i<args_size-1; i++){
+		FILE *p = fopen(command_args[i],"rt");  // the program is in a file
+		if(p == NULL){
+			return badcommandFileDoesNotExist();
+		}
+		// seeking to the end of the file, getting its size, then seeking back to beginning
+		fseek(p, 0, SEEK_END); 
+		long size = ftell(p) + 1; 
+		fseek(p, 0, SEEK_SET); 
+		// making char array for file contents with the size from above now 
+		cumSize+=size;
+	}
+	char fileContents[cumSize]; 
+	//mem_set_script(command_args[i], fileContents); 
+	//char *fileMemory = malloc(size); 
+	//fileMemory = mem_get_value(command_args[i]); 
+
+	//after allocating in memory? how to actually run/execute?
+	//free(fileMemory); 
+
 }
