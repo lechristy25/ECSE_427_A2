@@ -10,6 +10,18 @@ struct memory_struct{
 
 struct memory_struct shellmemory[1000];
 
+struct pcb{
+	int pid; 
+	char *key; 
+	int programCounter; 
+	struct pcb* next; 
+};
+
+struct pcb* head = NULL; 
+int pidCount = 0; 
+
+
+
 // Helper functions
 int match(char *model, char *var) {
 	int i, len=strlen(var), matchCount=0;
@@ -33,6 +45,7 @@ char *extract(char *model) {
 }
 
 
+
 // Shell memory functions
 
 void mem_init(){
@@ -42,6 +55,8 @@ void mem_init(){
 		shellmemory[i].var = "none";
 		shellmemory[i].value = "none";
 	}
+	// head = (struct pcb*)malloc(sizeof(struct pcb));
+
 }
 
 // Set key value pair
@@ -80,5 +95,61 @@ char *mem_get_value(char *var_in) {
 		} 
 	}
 	return "Variable does not exist";
+
+}
+
+// specific mem set for a script
+void mem_set_script(char *var_in, char *value_in) {
+	
+	int i;
+	//Value does not exist, need to find a free spot.
+	for (i=0; i<1000; i++){
+		if (strcmp(shellmemory[i].var, "none") == 0){
+			shellmemory[i].var = strdup(var_in);
+			shellmemory[i].value = strdup(value_in);
+
+			pidCount++; // to get new pid each time
+			struct pcb *newPcb = (struct pcb*)malloc(sizeof(struct pcb)); // allocating space for struct
+			newPcb->pid = pidCount; // setting pcb values
+			printf("%d\n", (*newPcb).pid);
+			newPcb->key = var_in; 
+			printf("%s\n", (*newPcb).key);
+			newPcb->programCounter = 0; 
+			newPcb->next = NULL;
+
+			// adding pcb to linkedlist
+			if(head == NULL){
+				head = newPcb; 
+			}else{
+				head->next = newPcb; 
+			}
+			break;
+		} 
+	}
+
+	// get the string back and read it until a line break 
+	char *currProcess = mem_get_value(head->key); 
+	printf("%s", mem_get_value((*head).key));
+	char *p, *temp;
+	p = strtok_r(currProcess, "\n", &temp);
+
+	// reading the string that was stored line by line
+	do {
+		if(strcmp(p, "\0") == 0){
+			break;
+		}
+		printf("current line = %s", p);
+	} while ((p = strtok_r(NULL, "\n", &temp)) != NULL);
+
+	// for some reason this part causes the error, it's trying to take the head process that was just "executed" and removes it from memory
+	for (i=0; i<1000; i++){
+		if (strcmp(shellmemory[i].var, ((*head).key)) == 0){
+			shellmemory[i].var = "none"; 
+			shellmemory[i].value = "none";
+			break;
+		} 
+	}
+
+	// head = head->next;
 
 }

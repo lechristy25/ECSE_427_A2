@@ -146,25 +146,45 @@ int echo(char* var){
 
 int run(char* script){
 	int errCode = 0;
-	char line[1000];
 	FILE *p = fopen(script,"rt");  // the program is in a file
 
 	if(p == NULL){
 		return badcommandFileDoesNotExist();
 	}
 
-	fgets(line,999,p);
-	while(1){
-		errCode = parseInput(line);	// which calls interpreter()
-		memset(line, 0, sizeof(line));
+		// seeking to the end of the file, getting its size, then seeking back to beginning
+	fseek(p, 0, SEEK_END); 
+	long size = ftell(p) + 1; 
+	fseek(p, 0, SEEK_SET); 
+	
+	// making char array for file contents with the size from above now 
+	char fileContents[size]; 
 
-		if(feof(p)){
-			break;
-		}
-		fgets(line,999,p);
-	}
+	//reading the entire file into the char array above 
+	fread(fileContents, 1, size - 1, p);
+	fclose(p); 
+	fileContents[size] = '\0'; 
 
-    fclose(p);
+	mem_set_script(script, fileContents); 
+
+	char *fileMemory = malloc(size); 
+	fileMemory = mem_get_value(script); 
+
+
+	free(fileMemory); 
+
+	// fgets(line,999,p);
+	// while(1){
+	// 	errCode = parseInput(line);	// which calls interpreter()
+	// 	memset(line, 0, sizeof(line));
+
+	// 	if(feof(p)){
+	// 		break;
+	// 	}
+	// 	fgets(line,999,p);
+	// }
+
+    // fclose(p);
 
 	return errCode;
 }
