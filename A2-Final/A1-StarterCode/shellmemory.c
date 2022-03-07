@@ -1,6 +1,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include<stdio.h>
+#include<stdbool.h>
 
 
 struct memory_struct{
@@ -15,6 +16,8 @@ struct pcb{
 	char *key; 
 	int programCounter; 
 	struct pcb* next; 
+	int start; 
+	int end; 
 };
 
 struct pcb* head = NULL; 
@@ -99,57 +102,66 @@ char *mem_get_value(char *var_in) {
 }
 
 // specific mem set for a script
-void mem_set_script(char *var_in, char *value_in) {
+void mem_set_script(char *var_in, char *value_in[], int lineCount) {
 	
 	int i;
+	int j;
 	//Value does not exist, need to find a free spot.
 	for (i=0; i<1000; i++){
 		if (strcmp(shellmemory[i].var, "none") == 0){
-			shellmemory[i].var = strdup(var_in);
-			shellmemory[i].value = strdup(value_in);
-
-			pidCount++; // to get new pid each time
-			struct pcb *newPcb = (struct pcb*)malloc(sizeof(struct pcb)); // allocating space for struct
-			newPcb->pid = pidCount; // setting pcb values
-			printf("%d\n", (*newPcb).pid);
-			newPcb->key = var_in; 
-			printf("%s\n", (*newPcb).key);
-			newPcb->programCounter = 0; 
-			newPcb->next = NULL;
-
-			// adding pcb to linkedlist
-			if(head == NULL){
-				head = newPcb; 
-			}else{
-				head->next = newPcb; 
+			bool spaceAvailable = true; 
+			for(j = i; j < i + lineCount; j++){
+				if(strcmp(shellmemory[j].var, "none") != 0){
+					spaceAvailable = false; 
+					break; 
+				}
 			}
-			break;
+			if(spaceAvailable){
+				for(j = i; j < i + lineCount; j++){
+					shellmemory[j].var = strdup(var_in); 
+					shellmemory[j].value = strdup(value_in[j-i]);
+				}
+				pidCount++; 
+				struct pcb *newPcb = (struct pcb*)malloc(sizeof(struct pcb));
+				newPcb->key = var_in;  
+				newPcb->pid = pidCount; 
+				newPcb->programCounter = 0; 
+				newPcb->next = NULL; 
+				newPcb->start = i; 
+				newPcb->end = i + lineCount - 1;
+
+				if(head == NULL){
+					head = newPcb; 
+				}else{
+					head->next = newPcb; 
+				}
+				break; 
+			}
 		} 
 	}
 
 	// get the string back and read it until a line break 
 	char *currProcess = mem_get_value(head->key); 
-	printf("%s", mem_get_value((*head).key));
-	char *p, *temp;
-	p = strtok_r(currProcess, "\n", &temp);
 
-	// reading the string that was stored line by line
-	do {
-		if(strcmp(p, "\0") == 0){
-			break;
+}
+
+void fcfs_run(){
+	if(head != NULL){
+		int i; 
+		int startingLine = head->start; 
+		int endingLine = head->end; 
+		for(i=startingLine; i <= endingLine; i++){
+			printf("key: %s, value: %s: index: %d\n", shellmemory[i].var, shellmemory[i].value, i);
 		}
-		printf("current line = %s", p);
-	} while ((p = strtok_r(NULL, "\n", &temp)) != NULL);
 
-	// for some reason this part causes the error, it's trying to take the head process that was just "executed" and removes it from memory
-	for (i=0; i<1000; i++){
-		if (strcmp(shellmemory[i].var, ((*head).key)) == 0){
+		for(i=startingLine; i <= endingLine; i++){
 			shellmemory[i].var = "none"; 
-			shellmemory[i].value = "none";
-			break;
-		} 
+			shellmemory[i].value = "none"; 
+		}
+
+		struct pcb* tmp = head->next; 
+		head = tmp; 
+	}else{
+		printf("head is null rn");
 	}
-
-	// head = head->next;
-
 }

@@ -144,6 +144,7 @@ int echo(char* var){
 	return 0;
 }
 
+// edits for part 1.2.1 here
 int run(char* script){
 	int errCode = 0;
 	FILE *p = fopen(script,"rt");  // the program is in a file
@@ -152,39 +153,29 @@ int run(char* script){
 		return badcommandFileDoesNotExist();
 	}
 
-		// seeking to the end of the file, getting its size, then seeking back to beginning
-	fseek(p, 0, SEEK_END); 
-	long size = ftell(p) + 1; 
-	fseek(p, 0, SEEK_SET); 
-	
-	// making char array for file contents with the size from above now 
-	char fileContents[size]; 
+	char c; 
+	int lineCount = 0; 
+	for(c = getc(p); c != EOF; c = getc(p)){
+		if (c == '\n'){
+			lineCount = lineCount + 1; 
+		}
+	}
 
-	//reading the entire file into the char array above 
-	fread(fileContents, 1, size - 1, p);
-	fclose(p); 
-	fileContents[size] = '\0'; 
-
-	mem_set_script(script, fileContents); 
-
-	char *fileMemory = malloc(size); 
-	fileMemory = mem_get_value(script); 
+	rewind(p);
 
 
-	free(fileMemory); 
+	char *lines[lineCount]; 
+	char line[1000]; 
+	int i = 0;
 
-	// fgets(line,999,p);
-	// while(1){
-	// 	errCode = parseInput(line);	// which calls interpreter()
-	// 	memset(line, 0, sizeof(line));
+	while(fgets(line, 999, p)){
+		lines[i] = strdup(line); 
+		i++; 
+	}
 
-	// 	if(feof(p)){
-	// 		break;
-	// 	}
-	// 	fgets(line,999,p);
-	// }
-
-    // fclose(p);
+	mem_set_script(script, lines, lineCount); 
+	fcfs_run();
+	fcfs_run(); // sanity check to make sure head is null
 
 	return errCode;
 }
