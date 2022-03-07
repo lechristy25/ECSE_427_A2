@@ -168,6 +168,7 @@ int run(char* script){
 		return badcommandFileDoesNotExist();
 	}
 
+<<<<<<< HEAD
 	char c; 
 	int lineCount = 0; 
 	for(c = getc(p); c != EOF; c = getc(p)){
@@ -182,6 +183,31 @@ int run(char* script){
 	char *lines[lineCount]; 
 	char line[1000]; 
 	int i = 0;
+=======
+		// seeking to the end of the file, getting its size, then seeking back to beginning
+	fseek(p, 0, SEEK_END); 
+	long size = ftell(p) + 1; 
+	fseek(p, 0, SEEK_SET); 
+	
+	// making char array for file contents with the size from above now 
+	char fileContents[size]; 
+
+	//reading the entire file into the char array above 
+	fread(fileContents, 1, size - 1, p);
+	fclose(p); 
+	fileContents[size] = '\0'; 
+
+	mem_set_script(script, fileContents); 
+
+	char *fileMemory = malloc(size); 
+	fileMemory = mem_get_value(script);
+
+	free(fileMemory);
+	// fgets(line,999,p);
+	// while(1){
+	// 	errCode = parseInput(line);	// which calls interpreter()
+	// 	memset(line, 0, sizeof(line));
+>>>>>>> bf8503a94ad81c4e7512be2160af5d864763dcc5
 
 	while(fgets(line, 999, p)){
 		lines[i] = strdup(line); 
@@ -236,9 +262,15 @@ int exec(char* command_args[], int args_size){
 		cumSize+=size;
 	}
 	char fileContents[cumSize]; 
+<<<<<<< HEAD
 	//mem_set_script(command_args[i], fileContents); 
 	//char *fileMemory = malloc(size); 
 	//fileMemory = mem_get_value(command_args[i]); 
+=======
+	mem_set_script(command_args[i], fileContents); 
+	char *fileMemory = malloc(size); 
+	fileMemory = mem_get_value(command_args[i]); 
+>>>>>>> bf8503a94ad81c4e7512be2160af5d864763dcc5
 
 	//after allocating in memory? how to actually run/execute?
 	//free(fileMemory); 

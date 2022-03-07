@@ -168,7 +168,10 @@ void fcfs_run(){
 	// head = head->next;
 	//free memory
 	
+<<<<<<< HEAD
 >>>>>>> changes
+=======
+>>>>>>> bf8503a94ad81c4e7512be2160af5d864763dcc5
 
 		struct pcb* tmp = head->next; 
 		head = tmp; 
