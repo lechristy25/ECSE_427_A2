@@ -197,7 +197,6 @@ int run(char* script){
 
 	mem_set_script(script, lines, lineCount); 
 	fcfs_run();
-	fcfs_run(); // sanity check to make sure head is null
 
 	return errCode;
 }
@@ -228,7 +227,7 @@ int exec(char* command_args[], int args_size){
 	int errCode = 0;
 	int cumSize = 0;
 	for (int i=1; i<args_size-1; i++){
-		printf("scripts : %s\n", command_args[i]);
+		//printf("scripts : %s\n", command_args[i]);
 		char* scriptname = command_args[i];
 		FILE *p = fopen(command_args[i],"rt");  // the program is in a file
 		//printf("%s\n", &p);
@@ -259,7 +258,9 @@ int exec(char* command_args[], int args_size){
 	} else if(strcmp(command_args[args_size-1], "SJF") == 0){
 		sjf_exec();
 	} else if(strcmp(command_args[args_size-1], "RR") == 0){
-		//fcfs_rr();
+		rr_exec();
+	} else if(strcmp(command_args[args_size-1], "AGING") == 0){
+		aging_exec();
 	}
 	//fcfs_exec();
 	return errCode;

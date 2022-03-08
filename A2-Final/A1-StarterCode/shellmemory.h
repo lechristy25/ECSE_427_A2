@@ -5,3 +5,5 @@ void mem_set_script(char *var, char *value[], int lineCount);
 void fcfs_run();
 void fcfs_exec();
 void sjf_exec();
+void rr_exec();
+void aging_exec();
