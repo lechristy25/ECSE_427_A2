@@ -4,3 +4,4 @@ void mem_set_value(char *var, char *value);
 void mem_set_script(char *var, char *value[], int lineCount); 
 void fcfs_run();
 void fcfs_exec();
+void sjf_exec();

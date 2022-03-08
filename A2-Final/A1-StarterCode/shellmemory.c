@@ -192,3 +192,60 @@ void fcfs_exec(){
 	}
 	printf("head is null rn");
 }
+
+void sjf_exec(){
+	//step 1: make length array for each pcb
+	int ctr = 0;
+	struct pcb* curr = head;
+	int length[4];
+
+	while(curr != NULL){
+		length[ctr] = curr->end - curr->start;
+		curr = curr->next;
+		ctr++;
+	}
+	curr = head; //reinitialize curr to head after traversal
+
+	//step 2: sort lengths in ascending order
+	int temp;
+	for (int i = 0; i < ctr+1; i++) {     
+		for (int j = i+1; j < ctr+1; j++) {     
+			if(length[i] > length[j]) {    
+				temp = length[i];    
+				length[i] = length[j];    
+				length[j] = temp;    
+			}     
+		}     
+	}    
+
+	//step 3: traverse length array - for each length
+		// 3.1: if duplicate ignore (?)
+		// 3.2: get first pcb with that length
+		// 3.3: execute it using start and end
+		// 3.4: remove 
+
+	for(int i = 0; i<ctr+1; i++){
+		curr = head;
+		while(curr != NULL){
+			if(curr->end - curr->start == length[i]){
+				int i; 
+				int startingLine = curr->start; 
+				int endingLine = curr->end; 
+				for(i=startingLine; i <= endingLine; i++){
+					//printf("key: %s, value: %s: index: %d\n", shellmemory[i].var, shellmemory[i].value, i);
+					parseInput(shellmemory[i].value);
+				}
+				//remove from readyqueue
+				for(i=startingLine; i <= endingLine; i++){
+					shellmemory[i].var = "none"; 
+					shellmemory[i].value = "none"; 
+				}
+				//make it indetectable by making length negative
+				curr->end = 0;
+				curr->start = 1;
+			}
+			curr = curr->next;
+		}
+	}
+
+}

@@ -210,12 +210,6 @@ int my_ls(){
 }
 
 int exec(char* command_args[], int args_size){
-	//####################################
-	// need to handle single argument - DONE
-	// need to handle identical files - DONE
-	// need to handle a single memory placement for all files - IN SHELL
-	// need to handle lack of space for one file = throw error + terminate - TODO
-	//####################################
 
 	if(args_size == 3){
 		run(command_args[1]);
@@ -260,7 +254,14 @@ int exec(char* command_args[], int args_size){
 		}
 		mem_set_script(scriptname, lines, lineCount); 
 	}
-	fcfs_exec();
+	if(strcmp(command_args[args_size-1], "FCFS") == 0){
+		fcfs_exec();
+	} else if(strcmp(command_args[args_size-1], "SJF") == 0){
+		sjf_exec();
+	} else if(strcmp(command_args[args_size-1], "RR") == 0){
+		//fcfs_rr();
+	}
+	//fcfs_exec();
 	return errCode;
 	
 
